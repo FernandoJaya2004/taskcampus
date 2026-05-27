@@ -9,7 +9,7 @@ interface Task {
     status: string;
 }
 
-const API_URL = "http://127.0.0";
+const API_URL = "http://localhost:8000/tasks";
 let allTasks: Task[] = []; // Aquí guardaremos temporalmente la lista de tareas del servidor
 
 // Se ejecuta automáticamente al cargar la página
@@ -50,35 +50,36 @@ function renderTasks(tasks: Task[]) {
     container.innerHTML = "";
 
     if (tasks.length === 0) {
-        container.innerHTML = `<p class="text-gray-500 text-center py-4 bg-white rounded shadow">No hay tareas que mostrar.</p>`;
+        container.innerHTML = `<p style="text-align: center; color: #6b7280; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">No hay tareas que mostrar.</p>`;
         return;
     }
 
     tasks.forEach(task => {
         const div = document.createElement("div");
-        // Cambiar el color del borde izquierdo según la prioridad
-        let borderColor = 'border-green-500';
-        if (task.priority === 'alta') borderColor = 'border-red-500';
-        else if (task.priority === 'media') borderColor = 'border-yellow-500';
+        
+        // Cambiar color del borde izquierdo según prioridad
+        let borderColor = '#10b981'; // verde
+        if (task.priority === 'alta') borderColor = '#dc2626'; // rojo
+        else if (task.priority === 'media') borderColor = '#d97706'; // amarillo
 
-        div.className = `bg-white p-4 rounded shadow flex justify-between items-center border-l-4 ${borderColor}`;
+        div.className = "task-card";
+        div.style.borderLeftColor = borderColor;
         
         div.innerHTML = `
-            <div>
-                <h3 class="text-lg font-bold text-gray-800">${task.title} 
-                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-medium ml-2">${task.status}</span>
-                </h3>
-                <p class="text-sm text-gray-600 mt-1">${task.description}</p>
-                <p class="text-xs text-gray-400 mt-2"><strong>Materia:</strong> ${task.subject} | <strong>Entrega:</strong> ${task.due_date}</p>
+            <div class="task-info">
+                <h3>${task.title} <span class="task-status">${task.status}</span></h3>
+                <p class="task-desc">${task.description}</p>
+                <p class="task-meta"><strong>Materia:</strong> ${task.subject} | <strong>Entrega:</strong> ${task.due_date}</p>
             </div>
-            <div class="space-x-3 flex items-center">
-                <button onclick="editTask(${task.id})" class="text-indigo-600 hover:text-indigo-900 font-medium text-sm transition">Editar</button>
-                <button onclick="deleteTask(${task.id})" class="text-red-600 hover:text-red-900 font-medium text-sm transition">Eliminar</button>
+            <div class="task-actions">
+                <button onclick="editTask(${task.id})" class="btn-edit">Editar</button>
+                <button onclick="deleteTask(${task.id})" class="btn-delete">Eliminar</button>
             </div>
         `;
         container.appendChild(div);
     });
 }
+
 
 // Configurar los formularios y los filtros de búsqueda
 function setupEventListeners() {
