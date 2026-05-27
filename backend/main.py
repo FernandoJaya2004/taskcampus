@@ -48,50 +48,7 @@ def save_tasks(tasks: List[dict]):
 def get_tasks():
     return load_tasks()
 
-# 2. Obtener una sola tarea por su ID
-@app.get("/tasks/{id}", response_model=Task)
-def get_task(id: int):
-    tasks = load_tasks()
-    task = next((t for t in tasks if t["id"] == id), None)
-    if not task:
-        raise HTTPException(status_code=404, detail="Tarea no encontrada")
-    return task
-
-# 3. Crear una nueva tarea
-@app.post("/tasks", response_model=Task)
-def create_task(task: Task):
-    tasks = load_tasks()
-    new_id = max([t["id"] for t in tasks], default=0) + 1
-    task_dict = task.dict()
-    task_dict["id"] = new_id
-    tasks.append(task_dict)
-    save_tasks(tasks)
-    return task_dict
-
-# 4. Modificar una tarea existente
-@app.put("/tasks/{id}", response_model=Task)
-def update_task(id: int, updated_task: Task):
-    tasks = load_tasks()
-    for idx, t in enumerate(tasks):
-        if t["id"] == id:
-            task_dict = updated_task.dict()
-            task_dict["id"] = id
-            tasks[idx] = task_dict
-            save_tasks(tasks)
-            return task_dict
-    raise HTTPException(status_code=404, detail="Tarea no encontrada")
-
-# 5. Eliminar una tarea
-@app.delete("/tasks/{id}")
-def delete_task(id: int):
-    tasks = load_tasks()
-    filtered_tasks = [t for t in tasks if t["id"] != id]
-    if len(filtered_tasks) == len(tasks):
-        raise HTTPException(status_code=404, detail="Tarea no encontrada")
-    save_tasks(filtered_tasks)
-    return {"message": "Tarea eliminada con éxito"}
-
-# 6. Estadísticas automáticas
+# 2. Estadísticas automáticas (Movido arriba para evitar el error 422)
 @app.get("/tasks/summary")
 def get_summary():
     tasks = load_tasks()
@@ -106,3 +63,46 @@ def get_summary():
         "finalizada": finalizada,
         "alta_prioridad": alta_prioridad
     }
+
+# 3. Obtener una sola tarea por su ID
+@app.get("/tasks/{id}", response_model=Task)
+def get_task(id: int):
+    tasks = load_tasks()
+    task = next((t for t in tasks if t["id"] == id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Tarea no encontrada")
+    return task
+
+# 4. Crear una nueva tarea
+@app.post("/tasks", response_model=Task)
+def create_task(task: Task):
+    tasks = load_tasks()
+    new_id = max([t["id"] for t in tasks], default=0) + 1
+    task_dict = task.dict()
+    task_dict["id"] = new_id
+    tasks.append(task_dict)
+    save_tasks(tasks)
+    return task_dict
+
+# 5. Modificar una tarea existente
+@app.put("/tasks/{id}", response_model=Task)
+def update_task(id: int, updated_task: Task):
+    tasks = load_tasks()
+    for idx, t in enumerate(tasks):
+        if t["id"] == id:
+            task_dict = updated_task.dict()
+            task_dict["id"] = id
+            tasks[idx] = task_dict
+            save_tasks(tasks)
+            return task_dict
+    raise HTTPException(status_code=404, detail="Tarea no encontrada")
+
+# 6. Eliminar una tarea
+@app.delete("/tasks/{id}")
+def delete_task(id: int):
+    tasks = load_tasks()
+    filtered_tasks = [t for t in tasks if t["id"] != id]
+    if len(filtered_tasks) == len(tasks):
+        raise HTTPException(status_code=404, detail="Tarea no encontrada")
+    save_tasks(filtered_tasks)
+    return {"message": "Tarea eliminada con éxito"}
